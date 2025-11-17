@@ -1,0 +1,130 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Banknote Observations</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <h1>Banknote Observations</h1>
+
+    <form id="dateForm">
+        <label>Start date: <input type="date" id="startDate" required></label>
+        <label>End date:   <input type="date" id="endDate" required></label>
+        <button type="submit">Load</button>
+    </form>
+
+    <div id="loading" style="display:none;">Loading…</div>
+    <div id="error" style="display:none; color:red;"></div>
+
+    <table id="resultTable" style="display:none;">
+        <thead><tr><th>Denomination</th><th>Value</th><th>Amount</th><!-- currencies added by JS --></tr></thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        const API_BASE = '/api/Observations';
+
+        const form = document.getElementById('dateForm');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const table = document.getElementById('resultTable');
+        const thead = table.querySelector('thead tr');
+        const tbody = table.querySelector('tbody');
+
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            error.textContent = '';
+            loading.style.display = 'block';
+            table.style.display = 'none';
+            tbody.innerHTML = '';
+            thead.innerHTML = '<th>Date</th><th>Denomination</th><th>EUR</th><th>Amount</th>';
+
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            const url = `${API_BASE}?startPeriod=${start}&endPeriod=${end}`;
+
+            try {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+                const data = await resp.json();
+
+                if (!data.observations || data.observations.length === 0) {
+                    error.textContent = 'No data for the selected period.';
+                    return;
+                }
+
+                render(data.observations);
+            } catch (ex) {
+                console.error(ex);
+                error.textContent = 'Error: ' + ex.message;
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+
+        function render(dateObservations) {
+            const currencies = new Set();
+
+            // 1. Collect ALL currency codes across every date + every banknote
+            dateObservations.forEach(day => {
+                day.banknotes.forEach(bn => {
+                    Object.keys(bn.currencies || {}).forEach(cur => currencies.add(cur));
+                });
+            });
+
+            const curArray = Array.from(currencies).sort();
+
+            // 2. Add currency columns
+            curArray.forEach(cur => {
+                const th = document.createElement('th');
+                th.textContent = cur;
+                thead.appendChild(th);
+            });
+
+            // 3. Create one row per banknote (with date)
+            dateObservations.forEach(day => {
+                day.banknotes.forEach(bn => {
+                    const tr = document.createElement('tr');
+
+                    // Date | Denomination | Value | Amount
+                    tr.appendChild(td(day.date));
+                    tr.appendChild(td(bn.denomination));
+                    tr.appendChild(td(formatNumber(bn.value)));
+                    tr.appendChild(td(formatNumber(bn.amount)));
+
+                    // One cell per currency
+                    curArray.forEach(cur => {
+                        const val = bn.currencies[cur] ?? 0;
+                        tr.appendChild(td(formatNumber(val)));
+                    });
+
+                    tbody.appendChild(tr);
+                });
+            });
+
+            table.style.display = 'table';
+        }
+
+        function td(text) {
+            const cell = document.createElement('td');
+            cell.textContent = text;
+            return cell;
+        }
+
+        function formatNumber(n) {
+            if (n === undefined || n === null) return '0';
+            return Number(n).toLocaleString('en', { maximumFractionDigits: 0 });
+        }
+
+        // Default: last 30 days
+        const today = new Date().toISOString().slice(0, 10);
+        const monthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+        document.getElementById('startDate').value = monthAgo;
+        document.getElementById('endDate').value = today;
+
+        // Load immediately on page open
+        form.dispatchEvent(new Event('submit'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+@BofApp_HostAddress = http://localhost:5287
+
+GET {{BofApp_HostAddress}}
+Accept: application/json
+
+###
