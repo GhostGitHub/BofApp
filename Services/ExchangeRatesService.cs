@@ -1,9 +1,5 @@
-﻿using BofApp.Controllers;
-using System;
-using System.Collections;
+﻿using BofApp.Models;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using static BofApp.Services.ExchangeRatesService;
 
 namespace BofApp.Services
 {
@@ -35,35 +31,12 @@ namespace BofApp.Services
 			};
 
 			var exchangeRatesResponse = JsonSerializer.Deserialize<List<ExchangeRatesResponse>>(content, options);
+			if (exchangeRatesResponse == null)
+			{
+				throw new Exception("Invalid exchange rates response");
+			}
 
 			return exchangeRatesResponse;
-		}
-
-		public class ExchangeRatesResponse
-		{
-			[JsonPropertyName("ExchangeRates")]
-			public List<ExchangeRatesDetail> ExchangeRates { get; set; }
-
-			[JsonPropertyName("Currency")]
-			public string Currency { get; set; }
-		}
-
-		public class ExchangeRatesData
-		{
-			[JsonPropertyName("ExchangeRates")]
-			public ExchangeRatesDetail ExchangeRates { get; set; }
-
-			[JsonPropertyName("Currency")]
-			public string Currency { get; set; }
-
-			[JsonPropertyName("CurrencyDenom")]
-			public string CurrencyDenom { get; set; }
-		}
-
-		public class ExchangeRatesDetail
-		{
-			[JsonPropertyName("Value")]
-			public string Value { get; set; }
 		}
 	}
 }

@@ -6,18 +6,18 @@ namespace BofApp.Models
 
 	public class ObservationResult
 	{
-		public List<ObservationItemResult> Observations { get; set; }
+		public required List<ObservationItemResult> Observations { get; set; }
 	}
 
 	public class ObservationItemResult
 	{
 		public DateOnly Date { get; set; }
-		public List<ObservationBankNoteDetail> Banknotes { get; set; }
+		public required List<ObservationBankNoteDetail> Banknotes { get; set; }
 	}
 
 	public class ObservationBankNoteDetail
 	{
-		public string Denomination { get; set; }
+		public required string Denomination { get; set; }
 
 		/// <summary>
 		/// Bank note code -> total value of bank notes
@@ -32,7 +32,7 @@ namespace BofApp.Models
 		/// <summary>
 		/// Value converted to available currencies
 		/// </summary>
-		public Dictionary<string, decimal> Currencies { get; set; }
+		public required Dictionary<string, decimal> Currencies { get; set; }
 	}
 
 
@@ -41,16 +41,16 @@ namespace BofApp.Models
 	public class ObservationsResponse
 	{
 		[JsonPropertyName("items")]
-		public List<ObservationItem> Items { get; set; }
+		public required List<ObservationItem> Items { get; set; }
 	}
 
 	public class ObservationItem
 	{
 		[JsonPropertyName("name")]
-		public string Name { get; set; }
+		public required string Name { get; set; }
 
 		[JsonPropertyName("observations")]
-		public List<Observation> Observations { get; set; }
+		public required List<Observation> Observations { get; set; }
 	}
 
 	public class Observation

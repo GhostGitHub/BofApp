@@ -1,6 +1,5 @@
 using BofApp.HealthChecks;
 using BofApp.Services;
-using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,12 +1,8 @@
 ﻿using BofApp.Models;
 using BofApp.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Data;
 using System.Globalization;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace BofApp.Controllers
 {
@@ -29,10 +25,13 @@ namespace BofApp.Controllers
 		[HttpGet(Name = "GetObservations")]
 		public async Task<ObservationResult> Get(string startPeriod, string endPeriod)
 		{
-			var queryParams = new List<string>();
+			var cultureInfoFi = new CultureInfo("fi-FI");
 
-			queryParams.Add($"startPeriod={startPeriod}");
-			queryParams.Add($"endPeriod={endPeriod}");
+			var queryParams = new List<string>
+			{
+				$"startPeriod={startPeriod}",
+				$"endPeriod={endPeriod}"
+			};
 
 			var queryString = queryParams.Count > 0 ? "?" + string.Join("&", queryParams) : "";
 			var url = $"{BaseUrl}/observations/{DataSet}{queryString}";
@@ -47,7 +46,7 @@ namespace BofApp.Controllers
 				PropertyNameCaseInsensitive = true
 			};
 
-			var observationsResponse = JsonSerializer.Deserialize<ObservationsResponse>(content, options);
+			var observationsResponse = JsonSerializer.Deserialize<ObservationsResponse>(content, options)!;
 
 			var ret = new ObservationResult() {
 				Observations = new()
@@ -62,8 +61,6 @@ namespace BofApp.Controllers
 				var pnOrPv = observationItem.Name.Split('.')[7];
 				var amounts = new Dictionary<string, long>();
 				var values = new Dictionary<string, long>();
-
-				var cultureInfoFi = new CultureInfo("fi-FI");
 
 				foreach (var observation in observationItem.Observations)
 				{
