@@ -4,9 +4,13 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationInsightsResourceId>/subscriptions/cd749843-69d8-4d44-a373-38ce673f49e3/resourceGroups/rg-bof-eu/providers/microsoft.insights/components/BofApp</ApplicationInsightsResourceId>
+    <UserSecretsId>602cccb7-ff6b-4964-af36-4fd2787fb8ed</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.17.0" />
+    <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
